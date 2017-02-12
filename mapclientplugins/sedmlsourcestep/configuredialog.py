@@ -21,6 +21,8 @@ class ConfigureDialog(QtGui.QDialog):
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
 
+        self._workflow_location = None
+
         # Keep track of the previous identifier so that we can track changes
         # and know how many occurrences of the current identifier there should
         # be.
@@ -37,6 +39,9 @@ class ConfigureDialog(QtGui.QDialog):
         self._ui.lineEditIdentifier.textChanged.connect(self.validate)
         self._ui.lineEditLocation.textChanged.connect(self.validate)
         self._ui.pushButtonLocation.clicked.connect(self._locationButtonClicked)
+
+    def setWorkflowLocation(self, location):
+        self._workflow_location = location
 
     def accept(self):
         '''
@@ -67,7 +72,7 @@ class ConfigureDialog(QtGui.QDialog):
         else:
             self._ui.lineEditIdentifier.setStyleSheet(INVALID_STYLE_SHEET)
 
-        valid_location = os.path.isdir(self._ui.lineEditLocation.text())
+        valid_location = os.path.isdir(os.path.join(self._workflow_location, self._ui.lineEditLocation.text()))
         if valid_location:
             self._ui.lineEditLocation.setStyleSheet(DEFAULT_STYLE_SHEET)
         else:
@@ -103,5 +108,5 @@ class ConfigureDialog(QtGui.QDialog):
         location = QtGui.QFileDialog.getExistingDirectory(self, 'Select Location', self._previousLocation)
         if location:
             self._previousLocation = location
-            self._ui.lineEditLocation.setText(location)
+            self._ui.lineEditLocation.setText(os.path.relpath(location, self._workflow_location))
 

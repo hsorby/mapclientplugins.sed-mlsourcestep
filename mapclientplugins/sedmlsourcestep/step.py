@@ -2,6 +2,7 @@
 '''
 MAP Client Plugin Step
 '''
+import os
 import json
 
 from PySide import QtGui
@@ -46,7 +47,7 @@ class SEDMLSourceStep(WorkflowStepMountPoint):
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
         '''
-        return self._config['Location'] # sedml
+        return os.path.join(self._location, self._config['Location']) # sedml
 
     def configure(self):
         '''
@@ -57,6 +58,7 @@ class SEDMLSourceStep(WorkflowStepMountPoint):
             self._configured = True
         '''
         dlg = ConfigureDialog(QtGui.QApplication.activeWindow().currentWidget())
+        dlg.setWorkflowLocation(self._location)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
@@ -96,6 +98,7 @@ class SEDMLSourceStep(WorkflowStepMountPoint):
         self._config.update(json.loads(string))
 
         d = ConfigureDialog()
+        d.setWorkflowLocation(self._location)
         d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
         self._configured = d.validate()
